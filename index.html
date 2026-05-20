@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MyGains">
+<title>MyGains</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #242424;
+    --bg4: #2e2e2e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #555;
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.12);
+    --accent-text: #1a1a00;
+    --red: #ff4757;
+    --red-dim: rgba(255,71,87,0.12);
+    --green: #2ed573;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --tab-h: 64px;
+    --header-h: 56px;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* HEADER */
+  .header {
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg);
+    position: relative;
+    z-index: 10;
+  }
+  .header-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+  .header-logo span { color: var(--text); }
+  .header-subtitle {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* SCROLLABLE CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--tab-h) + 16px);
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    height: var(--tab-h);
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color .2s;
+  }
+  .tab-btn svg { width: 22px; height: 22px; }
+  .tab-btn.active { color: var(--accent); }
+
+  /* VIEWS */
+  .view { display: none; padding: 20px; }
+  .view.active { display: block; }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin: 24px 0 10px;
+  }
+  .section-label:first-child { margin-top: 4px; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+
+  /* INPUTS */
+  input[type=text], input[type=number], textarea, select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    width: 100%;
+    outline: none;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+  input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: none; min-height: 60px; line-height: 1.5; }
+  select { cursor: pointer; }
+  select option { background: var(--bg3); }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .input-row > * { flex: 1; min-width: 0; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg4); }
+  .btn:active { transform: scale(0.97); }
+  .btn-accent {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+  .btn-accent:hover { background: #d4eb3a; }
+  .btn-full { width: 100%; margin-top: 12px; padding: 13px; font-size: 15px; }
+  .btn-danger { color: var(--red); border-color: transparent; background: transparent; padding: 6px 10px; }
+  .btn-danger:hover { background: var(--red-dim); }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--accent); padding: 6px 0; font-size: 12px; }
+  .btn-ghost:hover { background: transparent; opacity: 0.8; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .tag-accent {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: transparent;
+  }
+
+  /* GYM SELECTOR (Training view) */
+  .gym-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .gym-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+  }
+  .gym-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* SELECTOR ROW */
+  .sel-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .sel-row > select { flex: 1; }
+
+  /* EXERCISE SESSION CARD */
+  .ex-session-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .ex-session-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--bg3);
+    gap: 10px;
+  }
+  .ex-session-name {
+    flex: 1;
+    font-weight: 500;
+    font-size: 15px;
+  }
+  .ex-setup-badge {
+    font-size: 11px;
+    color: var(--text2);
+    font-style: italic;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ex-session-body { padding: 12px 14px; }
+
+  /* SETS TABLE */
+  .sets-head {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 28px;
+    gap: 6px;
+    font-size: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+  .set-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 28px;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .set-num {
+    font-size: 12px;
+    color: var(--text3);
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .set-row input {
+    height: 34px;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 4px;
+  }
+  .set-del {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all .15s;
+  }
+  .set-del:hover { color: var(--red); background: var(--red-dim); }
+
+  /* PROGRESS */
+  .prog-ex-selector {
+    margin-bottom: 16px;
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .metric-label {
+    font-size: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .metric-value.green { color: var(--green); }
+  .metric-value.accent { color: var(--accent); }
+
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+    height: 220px;
+  }
+  .chart-title {
+    font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .chart-inner { position: relative; height: 160px; }
+
+  /* HISTORY LIST */
+  .history-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .history-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+  }
+  .history-sets {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; line-height: 1.6; }
+
+  /* SETUP PLAN BUILDER */
+  .plan-day-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .plan-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg3);
+    cursor: pointer;
+  }
+  .plan-day-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .plan-day-body { padding: 12px 14px; }
+  .ex-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px 4px 12px;
+    font-size: 13px;
+    margin: 3px 3px 3px 0;
+  }
+  .ex-pill-del {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+  }
+  .ex-pill-del:hover { color: var(--red); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(var(--tab-h) + 16px);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: var(--accent-text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    padding: 10px 20px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: all .3s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .log-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .log-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+  }
+  .log-item-header:hover { background: var(--bg3); }
+  .log-item-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .log-item-meta {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+  .log-item-body {
+    border-top: 1px solid var(--border);
+    padding: 10px 14px;
+    display: none;
+  }
+  .log-item-body.open { display: block; }
+  .log-ex-row {
+    margin-bottom: 10px;
+  }
+  .log-ex-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .log-ex-sets {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-logo">My<span>Gains</span></div>
+    <div class="header-subtitle" id="header-sub">Dashboard</div>
+  </div>
+
+  <div class="content" id="main-content">
+    <!-- SETUP VIEW -->
+    <div class="view active" id="view-setup">
+
+      <div class="section-label" style="margin-top:4px">Gym</div>
+      <div class="gym-selector" style="margin-bottom:16px">
+        <button class="gym-btn active" id="setup-gym-btn-m" onclick="selectSetupGym('Münzesheim')">Münzesheim</button>
+        <button class="gym-btn" id="setup-gym-btn-o" onclick="selectSetupGym('Östringen')">Östringen</button>
+      </div>
+
+      <div class="section-label">Übungen</div>
+      <div id="setup-exercises-list"></div>
+
+      <div class="card" style="margin-top:4px">
+        <div class="section-label" style="margin-top:0">Neue Übung</div>
+        <div class="input-row">
+          <input type="text" id="new-ex-name" placeholder="Name der Übung">
+        </div>
+        <div class="input-row">
+          <textarea id="new-ex-setup" placeholder="Setup-Notizen (Sitzhöhe, Rücken, etc.)"></textarea>
+        </div>
+        <button class="btn btn-accent btn-full" onclick="addExercise()">+ Übung hinzufügen</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Trainingsplan konfigurieren</div>
+      <div class="input-row" style="margin-bottom:8px">
+        <select id="plan-split-sel" onchange="renderPlanBuilder()">
+          <option value="2">2er Split</option>
+          <option value="3">3er Split</option>
+        </select>
+      </div>
+      <div id="plan-builder"></div>
+    </div>
+
+    <!-- TRAINING VIEW -->
+    <div class="view" id="view-training">
+      <div class="section-label" style="margin-top:4px">Gym</div>
+      <div class="gym-selector">
+        <button class="gym-btn active" id="gym-btn-m" onclick="selectGym('Münzesheim')">Münzesheim</button>
+        <button class="gym-btn" id="gym-btn-o" onclick="selectGym('Östringen')">Östringen</button>
+      </div>
+
+      <div class="sel-row">
+        <select id="train-split-sel" onchange="renderTrainingDay()">
+          <option value="2">2er Split</option>
+          <option value="3">3er Split</option>
+        </select>
+        <select id="train-day-sel" onchange="renderTrainingDay()">
+          <option value="1">Tag 1</option>
+          <option value="2">Tag 2</option>
+          <option value="3">Tag 3</option>
+        </select>
+      </div>
+
+      <div id="training-exercises"></div>
+      <button class="btn btn-accent btn-full" id="save-btn" onclick="saveSession()">Einheit speichern ↗</button>
+    </div>
+
+    <!-- PROGRESS VIEW -->
+    <div class="view" id="view-progress">
+      <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <button class="prog-sub-btn active" id="prog-sub-ex" onclick="showProgSub('ex')" style="flex:1;padding:9px;background:var(--bg3);border:none;color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--border)">Übung</button>
+        <button class="prog-sub-btn" id="prog-sub-log" onclick="showProgSub('log')" style="flex:1;padding:9px;background:transparent;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer">Trainings</button>
+      </div>
+
+      <div id="prog-panel-ex">
+        <div class="section-label" style="margin-top:0">Gym</div>
+        <div class="gym-selector" style="margin-bottom:12px">
+          <button class="gym-btn active" id="prog-gym-btn-m" onclick="selectProgGym('Münzesheim')">Münzesheim</button>
+          <button class="gym-btn" id="prog-gym-btn-o" onclick="selectProgGym('Östringen')">Östringen</button>
+        </div>
+        <div class="section-label">Übung</div>
+        <div class="prog-ex-selector">
+          <select id="prog-ex-sel" onchange="renderProgress()">
+            <option value="">— Übung wählen —</option>
+          </select>
+        </div>
+        <div id="progress-content">
+          <div class="empty">
+            <div class="empty-icon">📈</div>
+            <div class="empty-text">Wähle eine Übung aus,<br>um deinen Verlauf zu sehen.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="prog-panel-log" style="display:none">
+        <div id="training-log-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA VIEW -->
+  <div class="view" id="view-data" style="display:none">
+
+    <div class="section-label" style="margin-top:4px">Backup exportieren</div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">
+        Speichert alle deine Daten (Übungen, Pläne, Trainings) als JSON-Datei. Vor jedem App-Update exportieren, danach wieder importieren.
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px" id="export-info"></div>
+      <button class="btn btn-accent btn-full" onclick="exportData()" style="margin-top:0">
+        ↓ Backup herunterladen
+      </button>
+    </div>
+
+    <div class="section-label">Backup importieren</div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">
+        Stellt alle Daten aus einer zuvor exportierten JSON-Datei wieder her. Vorhandene Daten werden dabei überschrieben.
+      </div>
+      <label style="display:block;background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;margin-bottom:8px">
+        <input type="file" accept=".json" id="import-file" style="display:none" onchange="importData(this)">
+        <div style="font-size:13px;color:var(--text2)" id="import-label">JSON-Datei auswählen</div>
+      </label>
+      <div id="import-status"></div>
+    </div>
+
+    <div class="section-label">Info</div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--text2);line-height:1.8">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+          <span>Trainings gespeichert</span><span style="color:var(--text)" id="info-sessions">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+          <span>Übungen Münzesheim</span><span style="color:var(--text)" id="info-ex-m">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0">
+          <span>Übungen Östringen</span><span style="color:var(--text)" id="info-ex-o">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-setup" onclick="showTab('setup')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+      </svg>
+      Setup
+    </button>
+    <button class="tab-btn" id="tab-training" onclick="showTab('training')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 4v16M18 4v16M3 8h3M18 8h3M3 16h3M18 16h3M6 12h12"/>
+      </svg>
+      Training
+    </button>
+    <button class="tab-btn" id="tab-progress" onclick="showTab('progress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Verlauf
+    </button>
+    <button class="tab-btn" id="tab-data" onclick="showTab('data')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Daten
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const GYMS = ['Münzesheim', 'Östringen'];
+const SPLITS = [2, 3];
+
+let db = JSON.parse(localStorage.getItem('mygains_v2') || 'null') || {
+  exercises: { 'Münzesheim': [], 'Östringen': [] },
+  plans: {
+    'Münzesheim': { '2': { '1': [], '2': [] }, '3': { '1': [], '2': [], '3': [] } },
+    'Östringen':  { '2': { '1': [], '2': [] }, '3': { '1': [], '2': [], '3': [] } }
+  },
+  sessions: []
+};
+
+// Ensure plans structure exists for both gyms and all splits/days (migration guard)
+['Münzesheim','Östringen'].forEach(gym => {
+  if (!db.exercises[gym]) db.exercises[gym] = [];
+  if (!db.plans[gym]) db.plans[gym] = {};
+  ['2','3'].forEach(sp => {
+    if (!db.plans[gym][sp]) db.plans[gym][sp] = {};
+    const days = sp === '2' ? ['1','2'] : ['1','2','3'];
+    days.forEach(d => { if (!db.plans[gym][sp][d]) db.plans[gym][sp][d] = []; });
+  });
+});
+
+let activeGym = 'Münzesheim';
+let activeSetupGym = 'Münzesheim';
+let sessionSets = {};
+let sessionDone = {};
+let progressChart = null;
+
+function persist() {
+  localStorage.setItem('mygains_v2', JSON.stringify(db));
+}
+
+// ─── SETUP GYM ───────────────────────────────────────────────────────────────
+function selectSetupGym(gym) {
+  activeSetupGym = gym;
+  document.getElementById('setup-gym-btn-m').classList.toggle('active', gym === 'Münzesheim');
+  document.getElementById('setup-gym-btn-o').classList.toggle('active', gym === 'Östringen');
+  renderSetupExercises();
+  renderPlanBuilder();
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+const headerSubs = { setup: 'Setup', training: 'Training', progress: 'Verlauf', data: 'Daten' };
+
+function showTab(t) {
+  document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const activeView = document.getElementById('view-' + t);
+  activeView.classList.add('active');
+  activeView.style.display = 'block';
+  document.getElementById('tab-' + t).classList.add('active');
+  document.getElementById('header-sub').textContent = headerSubs[t];
+  document.getElementById('main-content').scrollTop = 0;
+  if (t === 'setup') { renderSetupExercises(); renderPlanBuilder(); }
+  if (t === 'training') renderTrainingDay();
+  if (t === 'progress') renderProgressSelector();
+  if (t === 'data') renderDataInfo();
+}
+
+// ─── SETUP: EXERCISES ────────────────────────────────────────────────────────
+function renderSetupExercises() {
+  const gym = activeSetupGym;
+  const exs = db.exercises[gym] || [];
+  const el = document.getElementById('setup-exercises-list');
+  if (!exs.length) {
+    el.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-text" style="color:var(--text3)">Noch keine Übungen für dieses Gym.</div></div>';
+    return;
+  }
+  el.innerHTML = exs.map((ex, i) => `
+    <div class="card" style="margin-bottom:8px">
+      <div class="card-row">
+        <div style="flex:1">
+          <div class="card-title">${ex.name}</div>
+          ${ex.setup ? `<div class="card-sub">${ex.setup}</div>` : ''}
+        </div>
+        <button class="btn btn-danger" onclick="removeExercise('${gym}', ${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addExercise() {
+  const gym = activeSetupGym;
+  const name = document.getElementById('new-ex-name').value.trim();
+  const setup = document.getElementById('new-ex-setup').value.trim();
+  if (!name) { toast('Bitte Übungsname eingeben'); return; }
+  db.exercises[gym].push({ name, setup });
+  document.getElementById('new-ex-name').value = '';
+  document.getElementById('new-ex-setup').value = '';
+  persist();
+  renderSetupExercises();
+  toast('Übung hinzugefügt ✓');
+}
+
+function removeExercise(gym, idx) {
+  db.exercises[gym].splice(idx, 1);
+  persist();
+  renderSetupExercises();
+  renderPlanBuilder();
+}
+
+// ─── SETUP: PLAN BUILDER ─────────────────────────────────────────────────────
+function renderPlanBuilder() {
+  const gym = activeSetupGym;
+  const splitStr = document.getElementById('plan-split-sel').value;
+  const split = parseInt(splitStr);
+  const exs = db.exercises[gym] || [];
+  const container = document.getElementById('plan-builder');
+
+  if (!exs.length) {
+    container.innerHTML = '<div class="empty" style="padding:16px 0"><div class="empty-text" style="color:var(--text3)">Erst Übungen für dieses Gym anlegen.</div></div>';
+    return;
+  }
+
+  let html = '';
+  for (let day = 1; day <= split; day++) {
+    const assigned = (db.plans[gym] && db.plans[gym][splitStr] && db.plans[gym][splitStr][String(day)]) || [];
+    const pills = assigned.map(name => `
+      <span class="ex-pill">${name}
+        <button class="ex-pill-del" onclick="removePlanEx('${gym}',${split},${day},'${name.replace(/'/g,"\\'")}')">✕</button>
+      </span>`).join('');
+
+    const options = exs.filter(e => !assigned.includes(e.name))
+      .map(e => `<option value="${e.name.replace(/"/g,'&quot;')}">${e.name}</option>`).join('');
+
+    html += `
+      <div class="plan-day-card">
+        <div class="plan-day-header">
+          <span class="plan-day-title">${split}er Split — Tag ${day}</span>
+        </div>
+        <div class="plan-day-body">
+          <div style="margin-bottom:8px">${pills || '<span style="font-size:12px;color:var(--text3)">Noch keine Übungen zugewiesen.</span>'}</div>
+          ${options ? `
+          <div class="input-row" style="margin-bottom:0">
+            <select id="plan-add-sel-${day}">${options}</select>
+            <button class="btn" style="white-space:nowrap" onclick="addPlanEx('${gym}',${split},${day})">+ Hinzufügen</button>
+          </div>` : '<div style="font-size:12px;color:var(--text3)">Alle Übungen zugewiesen.</div>'}
+        </div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function addPlanEx(gym, split, day) {
+  const sel = document.getElementById(`plan-add-sel-${day}`);
+  if (!sel) return;
+  const name = sel.value;
+  if (!name) return;
+  const sp = String(split), d = String(day);
+  if (!db.plans[gym]) db.plans[gym] = {};
+  if (!db.plans[gym][sp]) db.plans[gym][sp] = {};
+  if (!db.plans[gym][sp][d]) db.plans[gym][sp][d] = [];
+  db.plans[gym][sp][d].push(name);
+  persist();
+  renderPlanBuilder();
+}
+
+function removePlanEx(gym, split, day, name) {
+  const sp = String(split), d = String(day);
+  if (db.plans[gym] && db.plans[gym][sp] && db.plans[gym][sp][d]) {
+    db.plans[gym][sp][d] = db.plans[gym][sp][d].filter(n => n !== name);
+  }
+  persist();
+  renderPlanBuilder();
+}
+
+// ─── TRAINING ────────────────────────────────────────────────────────────────
+function selectGym(gym) {
+  activeGym = gym;
+  document.getElementById('gym-btn-m').classList.toggle('active', gym === 'Münzesheim');
+  document.getElementById('gym-btn-o').classList.toggle('active', gym === 'Östringen');
+  sessionSets = {};
+  sessionDone = {};
+  renderTrainingDay();
+}
+
+function renderTrainingDay() {
+  const split = parseInt(document.getElementById('train-split-sel').value);
+  const day = parseInt(document.getElementById('train-day-sel').value);
+
+  // update day options
+  const daySel = document.getElementById('train-day-sel');
+  const curDay = parseInt(daySel.value);
+  daySel.innerHTML = Array.from({length: split}, (_,i) => `<option value="${i+1}" ${curDay===i+1?'selected':''}>Tag ${i+1}</option>`).join('');
+  const activeDay = Math.min(parseInt(daySel.value), split);
+
+  const exNames = (db.plans[activeGym] && db.plans[activeGym][String(split)] && db.plans[activeGym][String(split)][String(activeDay)]) || [];
+  const container = document.getElementById('training-exercises');
+
+  if (!exNames.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">Für diesen Plan-Tag sind noch<br>keine Übungen konfiguriert.<br><br>Bitte zuerst im Setup-Tab<br>Übungen zuweisen.</div></div>';
+    return;
+  }
+
+  // init session sets
+  exNames.forEach(name => {
+    if (!sessionSets[name]) {
+      sessionSets[name] = [{ reps: '', weight: '' }];
+    }
+  });
+
+  const exMap = {};
+  (db.exercises[activeGym] || []).forEach(e => exMap[e.name] = e);
+
+  container.innerHTML = exNames.map(name => {
+    const ex = exMap[name] || { name, setup: '' };
+    const sets = sessionSets[name] || [{ reps:'', weight:'' }];
+    const done = sessionDone[name] || false;
+    const vol = sets.reduce((sum, s) => {
+      const r = parseFloat(s.reps), w = parseFloat(s.weight);
+      return sum + (isNaN(r)||isNaN(w) ? 0 : r * w);
+    }, 0);
+    const volStr = vol > 0 ? Math.round(vol) + ' kg' : '\u2014';
+    const sn = name.replace(/'/g, "\\'");
+    const rows = sets.map((s, si) => `
+      <div class="set-row">
+        <div class="set-num">${si+1}</div>
+        <input type="number" min="0" inputmode="numeric" value="${s.reps}" placeholder="12"
+          oninput="updateSet('${sn}',${si},'reps',this.value)">
+        <input type="number" min="0" step="0.5" inputmode="decimal" value="${s.weight}" placeholder="kg"
+          oninput="updateSet('${sn}',${si},'weight',this.value)">
+        <button class="set-del" onclick="removeSet('${sn}',${si})">&#x2715;</button>
+      </div>`).join('');
+    const checkColor = done ? '#2ed573' : '#444';
+    const checkStroke = done ? '#2ed573' : '#555';
+    return `
+      <div class="ex-session-card" style="opacity:${done ? '0.5' : '1'}">
+        <div class="ex-session-header">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="ex-session-name" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div>
+              <div style="font-size:12px;color:#e8ff47;font-weight:500;white-space:nowrap">${volStr}</div>
+            </div>
+            ${ex.setup ? `<div class="ex-setup-badge">&#9881; ${ex.setup}</div>` : ''}
+          </div>
+          <button onclick="toggleDone('${sn}')" style="margin-left:10px;flex-shrink:0;width:34px;height:34px;border-radius:50%;border:2px solid ${checkColor};background:${done ? 'rgba(46,213,115,0.15)' : 'transparent'};cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <polyline points="3,8 6.5,11.5 13,4.5" stroke="${checkStroke}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="ex-session-body">
+          <div class="sets-head"><span>#</span><span>Wdh.</span><span>Gewicht (kg)</span><span></span></div>
+          ${rows}
+          <button class="btn btn-ghost" onclick="addSet('${sn}')">+ Satz hinzuf\u00FCgen</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateSet(name, si, field, val) {
+  if (!sessionSets[name]) return;
+  sessionSets[name][si][field] = val;
+  updateVolumeDisplay(name);
+}
+
+function updateVolumeDisplay(name) {
+  const sets = sessionSets[name] || [];
+  const vol = sets.reduce((sum, s) => {
+    const r = parseFloat(s.reps), w = parseFloat(s.weight);
+    return sum + (isNaN(r)||isNaN(w) ? 0 : r * w);
+  }, 0);
+  const cards = document.querySelectorAll('.ex-session-card');
+  cards.forEach(card => {
+    const nameEl = card.querySelector('.ex-session-name');
+    if (!nameEl || nameEl.textContent !== name) return;
+    const volEl = card.querySelector('.ex-session-header [style*="accent"]');
+    if (volEl) volEl.textContent = vol > 0 ? Math.round(vol) + ' kg' : '—';
+  });
+}
+
+function toggleDone(name) {
+  sessionDone[name] = !sessionDone[name];
+  renderTrainingDay();
+}
+
+function addSet(name) {
+  if (!sessionSets[name]) sessionSets[name] = [];
+  const last = sessionSets[name].slice(-1)[0] || {};
+  sessionSets[name].push({ reps: last.reps || '', weight: last.weight || '' });
+  renderTrainingDay();
+}
+
+function removeSet(name, si) {
+  if (!sessionSets[name]) return;
+  sessionSets[name].splice(si, 1);
+  if (!sessionSets[name].length) sessionSets[name] = [{ reps:'', weight:'' }];
+  renderTrainingDay();
+}
+
+function saveSession() {
+  const split = parseInt(document.getElementById('train-split-sel').value);
+  const day = parseInt(document.getElementById('train-day-sel').value);
+  const exNames = (db.plans[activeGym] && db.plans[activeGym][String(split)] && db.plans[activeGym][String(split)][String(day)]) || [];
+
+  const exercises = exNames.map(name => ({
+    name,
+    sets: (sessionSets[name] || []).filter(s => s.reps && s.weight)
+      .map(s => ({ reps: parseFloat(s.reps), weight: parseFloat(s.weight) }))
+  })).filter(e => e.sets.length);
+
+  if (!exercises.length) { toast('Keine Daten zum Speichern'); return; }
+
+  db.sessions.push({
+    date: new Date().toISOString().split('T')[0],
+    gym: activeGym,
+    split,
+    day,
+    exercises
+  });
+  persist();
+  sessionSets = {};
+  sessionDone = {};
+  renderTrainingDay();
+  toast('Einheit gespeichert ✓');
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+let activeProgGym = 'Münzesheim';
+
+function selectProgGym(gym) {
+  activeProgGym = gym;
+  document.getElementById('prog-gym-btn-m').classList.toggle('active', gym === 'Münzesheim');
+  document.getElementById('prog-gym-btn-o').classList.toggle('active', gym === 'Östringen');
+  renderProgressSelector();
+}
+
+function renderProgressSelector() {
+  const names = [...new Set(
+    db.exercises[activeProgGym].map(e => e.name)
+  )].sort();
+  const sel = document.getElementById('prog-ex-sel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Übung wählen —</option>' +
+    names.map(n => `<option value="${n}" ${n===cur?'selected':''}>${n}</option>`).join('');
+  // reset content if selected exercise not in this gym
+  if (cur && !names.includes(cur)) {
+    document.getElementById('progress-content').innerHTML = '<div class="empty"><div class="empty-icon">📈</div><div class="empty-text">Wähle eine Übung aus,<br>um deinen Verlauf zu sehen.</div></div>';
+  } else if (cur) {
+    renderProgress();
+  }
+}
+
+function deleteSession(idx) {
+  db.sessions.splice(idx, 1);
+  persist();
+  // re-render whichever panel is visible
+  const logVisible = document.getElementById('prog-panel-log').style.display !== 'none';
+  if (logVisible) renderTrainingLog();
+  renderProgress();
+}
+
+function confirmDeleteSession(idx) {
+  const existing = document.getElementById('delete-confirm-' + idx);
+  if (existing) { existing.remove(); return; }
+  const btn = document.querySelector(`[data-del-idx="${idx}"]`);
+  if (!btn) return;
+  const confirm = document.createElement('div');
+  confirm.id = 'delete-confirm-' + idx;
+  confirm.style.cssText = 'display:flex;gap:6px;margin-top:8px;align-items:center';
+  confirm.innerHTML = `
+    <span style="font-size:12px;color:var(--text2);flex:1">Wirklich löschen?</span>
+    <button onclick="deleteSession(${idx})" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:500">Löschen</button>
+    <button onclick="document.getElementById('delete-confirm-${idx}').remove()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer">Abbrechen</button>
+  `;
+  btn.closest('.history-item').appendChild(confirm);
+}
+
+function renderProgress() {
+  const exName = document.getElementById('prog-ex-sel').value;
+  const content = document.getElementById('progress-content');
+  if (!exName) {
+    content.innerHTML = '<div class="empty"><div class="empty-icon">📈</div><div class="empty-text">Wähle eine Übung aus,<br>um deinen Verlauf zu sehen.</div></div>';
+    return;
+  }
+
+  const points = [];
+  db.sessions.forEach((sess, sessIdx) => {
+    if (sess.gym !== activeProgGym) return;
+    const ex = sess.exercises.find(e => e.name === exName);
+    if (!ex || !ex.sets.length) return;
+    const maxW = Math.max(...ex.sets.map(s => s.weight));
+    const vol = ex.sets.reduce((s, x) => s + x.reps * x.weight, 0);
+    points.push({ date: sess.date, gym: sess.gym, maxW, vol, sets: ex.sets, sessIdx });
+  });
+
+  if (!points.length) {
+    content.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Noch keine Einheiten für<br>diese Übung gespeichert.</div></div>';
+    return;
+  }
+
+  const last = points[points.length - 1];
+  const first = points[0];
+  const diff = last.maxW - first.maxW;
+  const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' kg';
+
+  const historyItems = points.slice().reverse().map(p => {
+    const setsStr = p.sets.map(s => `${s.reps} × ${s.weight} kg`).join(' · ');
+    return `<div class="history-item" style="position:relative">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="flex:1">
+          <div class="history-date">${p.date}</div>
+          <div class="history-sets">${setsStr}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Max ${p.maxW} kg · Vol ${Math.round(p.vol)} kg</div>
+        </div>
+        <button class="btn btn-danger" style="padding:4px 8px;font-size:12px;flex-shrink:0;margin-top:-2px" data-del-idx="${p.sessIdx}" onclick="confirmDeleteSession(${p.sessIdx})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">Aktuell max.</div>
+        <div class="metric-value accent">${last.maxW.toFixed(1)} kg</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Entwicklung</div>
+        <div class="metric-value ${diff >= 0 ? 'green' : ''}">${diffStr}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Einheiten</div>
+        <div class="metric-value">${points.length}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Letztes Vol.</div>
+        <div class="metric-value">${Math.round(last.vol)} kg</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">Max. Gewicht — ' + activeProgGym + '</div>
+      <div class="chart-inner">
+        <canvas id="progChart" role="img" aria-label="Gewichtsverlauf ${exName}">Verlaufsdaten für ${exName}.</canvas>
+      </div>
+    </div>
+
+    <div class="section-label">Einheiten-History</div>
+    ${historyItems}
+  `;
+
+  if (progressChart) { progressChart.destroy(); progressChart = null; }
+
+  setTimeout(() => {
+    const ctx = document.getElementById('progChart');
+    if (!ctx) return;
+    progressChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: points.map(p => p.date.slice(5)),
+        datasets: [{
+          data: points.map(p => parseFloat(p.maxW.toFixed(1))),
+          borderColor: '#e8ff47',
+          backgroundColor: 'rgba(232,255,71,0.06)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: '#e8ff47',
+          pointBorderColor: '#0f0f0f',
+          pointBorderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          titleColor: '#999',
+          bodyColor: '#e8ff47',
+          callbacks: { label: ctx => ctx.parsed.y + ' kg' }
+        }},
+        scales: {
+          x: { ticks: { color: '#555', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#555', font: { size: 11 }, callback: v => v + ' kg' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }, 50);
+}
+
+// ─── PROGRESS SUB-TABS ───────────────────────────────────────────────────────
+function showProgSub(sub) {
+  document.getElementById('prog-panel-ex').style.display = sub === 'ex' ? 'block' : 'none';
+  document.getElementById('prog-panel-log').style.display = sub === 'log' ? 'block' : 'none';
+  document.getElementById('prog-sub-ex').style.background = sub === 'ex' ? 'var(--bg3)' : 'transparent';
+  document.getElementById('prog-sub-ex').style.color = sub === 'ex' ? 'var(--accent)' : 'var(--text2)';
+  document.getElementById('prog-sub-log').style.background = sub === 'log' ? 'var(--bg3)' : 'transparent';
+  document.getElementById('prog-sub-log').style.color = sub === 'log' ? 'var(--accent)' : 'var(--text2)';
+  if (sub === 'log') renderTrainingLog();
+}
+
+function renderTrainingLog() {
+  const el = document.getElementById('training-log-content');
+  if (!db.sessions.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Noch keine Trainings gespeichert.</div></div>';
+    return;
+  }
+
+  const sorted = db.sessions.map((s, i) => ({ ...s, idx: i })).slice().reverse();
+
+  el.innerHTML = sorted.map(sess => {
+    const gymShort = sess.gym === 'Münzesheim' ? 'MZH' : 'ÖST';
+    const totalSets = sess.exercises.reduce((s, e) => s + e.sets.length, 0);
+    const totalVol = sess.exercises.reduce((s, e) =>
+      s + e.sets.reduce((sv, st) => sv + st.reps * st.weight, 0), 0);
+    const exList = sess.exercises.map(ex => {
+      const setsStr = ex.sets.map(s => `${s.reps} × ${s.weight} kg`).join(' · ');
+      const exVol = Math.round(ex.sets.reduce((s, st) => s + st.reps * st.weight, 0));
+      return `<div class="log-ex-row">
+        <div class="log-ex-name">${ex.name} <span style="color:var(--accent);font-size:11px;font-weight:400">${exVol} kg</span></div>
+        <div class="log-ex-sets">${setsStr}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="log-item">
+      <div class="log-item-header" onclick="toggleLogItem(this)">
+        <div style="flex:1;min-width:0">
+          <div class="log-item-date">${sess.date} <span class="tag" style="margin-left:4px">${gymShort}</span></div>
+          <div class="log-item-meta">${sess.exercises.length} Übungen · ${totalSets} Sätze · ${Math.round(totalVol)} kg Volumen</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <button onclick="event.stopPropagation();confirmDeleteLogSession(${sess.idx},this)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center" title="Training löschen">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <polyline points="3,3.5 12,3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M5.5,3.5V2.5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <rect x="2.5" y="3.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+              <line x1="5.5" y1="6.5" x2="5.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <line x1="9.5" y1="6.5" x2="9.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="transition:transform .2s" class="log-chevron">
+            <polyline points="4,6 8,10 12,6" stroke="var(--text3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="log-item-body">${exList}</div>
+    </div>`;
+  }).join('');
+}
+
+function confirmDeleteLogSession(idx, btn) {
+  const existing = document.getElementById('log-del-confirm-' + idx);
+  if (existing) { existing.remove(); return; }
+  const item = btn.closest('.log-item');
+  const confirm = document.createElement('div');
+  confirm.id = 'log-del-confirm-' + idx;
+  confirm.style.cssText = 'display:flex;gap:6px;padding:10px 14px;align-items:center;border-top:1px solid var(--border);background:var(--bg3)';
+  confirm.innerHTML = `
+    <span style="font-size:12px;color:var(--text2);flex:1">Training wirklich löschen?</span>
+    <button onclick="deleteSession(${idx})" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:500">Löschen</button>
+    <button onclick="document.getElementById('log-del-confirm-${idx}').remove()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer">Abbrechen</button>
+  `;
+  item.appendChild(confirm);
+}
+
+function toggleLogItem(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.log-chevron');
+  const isOpen = body.classList.toggle('open');
+  chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+}
+
+// ─── DATA / EXPORT / IMPORT ──────────────────────────────────────────────────
+function renderDataInfo() {
+  document.getElementById('info-sessions').textContent = db.sessions.length;
+  document.getElementById('info-ex-m').textContent = db.exercises['Münzesheim'].length;
+  document.getElementById('info-ex-o').textContent = db.exercises['Östringen'].length;
+  const dates = db.sessions.map(s => s.date).sort();
+  const info = document.getElementById('export-info');
+  if (dates.length) {
+    info.textContent = dates.length + ' Trainings · ' + dates[0] + ' bis ' + dates[dates.length-1];
+  } else {
+    info.textContent = 'Noch keine Trainings vorhanden.';
+  }
+}
+
+function exportData() {
+  const date = new Date().toISOString().split('T')[0];
+  const json = JSON.stringify(db, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mygains-backup-' + date + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup exportiert ✓');
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('import-label').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed.exercises || !parsed.plans || !parsed.sessions) throw new Error('Ungültiges Format');
+      db = parsed;
+      // migration guard
+      ['Münzesheim','Östringen'].forEach(gym => {
+        if (!db.exercises[gym]) db.exercises[gym] = [];
+        if (!db.plans[gym]) db.plans[gym] = {};
+        ['2','3'].forEach(sp => {
+          if (!db.plans[gym][sp]) db.plans[gym][sp] = {};
+          const days = sp === '2' ? ['1','2'] : ['1','2','3'];
+          days.forEach(d => { if (!db.plans[gym][sp][d]) db.plans[gym][sp][d] = []; });
+        });
+      });
+      persist();
+      renderDataInfo();
+      const status = document.getElementById('import-status');
+      status.innerHTML = '<div style="font-size:13px;color:var(--green);margin-top:8px">✓ Import erfolgreich — ' + db.sessions.length + ' Trainings wiederhergestellt.</div>';
+      toast('Import erfolgreich ✓');
+    } catch(err) {
+      document.getElementById('import-status').innerHTML = '<div style="font-size:13px;color:var(--red);margin-top:8px">✕ Fehler: ' + err.message + '</div>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderSetupExercises();
+renderPlanBuilder();
+</script>
+</body>
+</html>
