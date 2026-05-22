@@ -584,35 +584,57 @@
     <div class="view active" id="view-setup">
 
       <div class="section-label" style="margin-top:4px">Gym</div>
-      <div class="gym-selector" style="margin-bottom:16px">
+      <div class="gym-selector" style="margin-bottom:12px">
         <button class="gym-btn active" id="setup-gym-btn-m" onclick="selectSetupGym('Münzesheim')">Münzesheim</button>
         <button class="gym-btn" id="setup-gym-btn-o" onclick="selectSetupGym('Östringen')">Östringen</button>
       </div>
 
-      <div class="section-label">Übungen</div>
-      <div id="setup-exercises-list"></div>
-
-      <div class="card" style="margin-top:4px">
-        <div class="section-label" style="margin-top:0">Neue Übung</div>
-        <div class="input-row">
-          <input type="text" id="new-ex-name" placeholder="Name der Übung">
-        </div>
-        <div class="input-row">
-          <textarea id="new-ex-setup" placeholder="Setup-Notizen (Sitzhöhe, Rücken, etc.)"></textarea>
-        </div>
-        <button class="btn btn-accent btn-full" onclick="addExercise()">+ Übung hinzufügen</button>
+      <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <button id="setup-sub-ex" onclick="showSetupSub('ex')" style="flex:1;padding:8px 4px;background:var(--bg3);border:none;border-right:1px solid var(--border);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer">Übungen</button>
+        <button id="setup-sub-cardio" onclick="showSetupSub('cardio')" style="flex:1;padding:8px 4px;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer">Cardio</button>
+        <button id="setup-sub-plan" onclick="showSetupSub('plan')" style="flex:1;padding:8px 4px;background:transparent;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer">Plan</button>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="section-label">Trainingsplan konfigurieren</div>
-      <div class="input-row" style="margin-bottom:8px">
-        <select id="plan-split-sel" onchange="renderPlanBuilder()">
-          <option value="2">2er Split</option>
-          <option value="3">3er Split</option>
-        </select>
+      <!-- Übungen Panel -->
+      <div id="setup-panel-ex">
+        <div id="setup-exercises-list"></div>
+        <div class="card" style="margin-top:4px">
+          <div class="section-label" style="margin-top:0">Neue Übung</div>
+          <div class="input-row">
+            <input type="text" id="new-ex-name" placeholder="Name der Übung">
+          </div>
+          <div class="input-row">
+            <textarea id="new-ex-setup" placeholder="Setup-Notizen (Sitzhöhe, Rücken, etc.)"></textarea>
+          </div>
+          <button class="btn btn-accent btn-full" onclick="addExercise()">+ Übung hinzufügen</button>
+        </div>
       </div>
-      <div id="plan-builder"></div>
+
+      <!-- Cardio Panel -->
+      <div id="setup-panel-cardio" style="display:none">
+        <div id="setup-cardio-list"></div>
+        <div class="card" style="margin-top:4px">
+          <div class="section-label" style="margin-top:0">Neues Cardiogerät</div>
+          <div class="input-row">
+            <input type="text" id="new-cardio-name" placeholder="z.B. Laufband, Crosstrainer">
+          </div>
+          <div class="input-row">
+            <textarea id="new-cardio-setup" placeholder="Setup-Notizen (optional)"></textarea>
+          </div>
+          <button class="btn btn-accent btn-full" onclick="addCardio()">+ Gerät hinzufügen</button>
+        </div>
+      </div>
+
+      <!-- Plan Panel -->
+      <div id="setup-panel-plan" style="display:none">
+        <div class="input-row" style="margin-bottom:8px">
+          <select id="plan-split-sel" onchange="renderPlanBuilder()">
+            <option value="2">2er Split</option>
+            <option value="3">3er Split</option>
+          </select>
+        </div>
+        <div id="plan-builder"></div>
+      </div>
     </div>
 
     <!-- TRAINING VIEW -->
@@ -627,6 +649,7 @@
         <select id="train-split-sel" onchange="renderTrainingDay()">
           <option value="2">2er Split</option>
           <option value="3">3er Split</option>
+          <option value="cardio">Cardio</option>
         </select>
         <select id="train-day-sel" onchange="renderTrainingDay()">
           <option value="1">Tag 1</option>
@@ -642,8 +665,9 @@
     <!-- PROGRESS VIEW -->
     <div class="view" id="view-progress">
       <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
-        <button class="prog-sub-btn active" id="prog-sub-ex" onclick="showProgSub('ex')" style="flex:1;padding:9px;background:var(--bg3);border:none;color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--border)">Übung</button>
-        <button class="prog-sub-btn" id="prog-sub-log" onclick="showProgSub('log')" style="flex:1;padding:9px;background:transparent;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer">Trainings</button>
+        <button class="prog-sub-btn active" id="prog-sub-ex" onclick="showProgSub('ex')" style="flex:1;padding:9px;background:var(--bg3);border:none;color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--border)">Übung</button>
+        <button class="prog-sub-btn" id="prog-sub-cardio" onclick="showProgSub('cardio')" style="flex:1;padding:9px;background:transparent;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--border)">Cardio</button>
+        <button class="prog-sub-btn" id="prog-sub-log" onclick="showProgSub('log')" style="flex:1;padding:9px;background:transparent;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer">Trainings</button>
       </div>
 
       <div id="prog-panel-ex">
@@ -666,6 +690,11 @@
         </div>
       </div>
 
+      <div id="prog-panel-cardio" style="display:none">
+        <div id="cardio-progress-content">
+          <div class="empty"><div class="empty-icon">🚴</div><div class="empty-text">Noch keine Cardio-Einheiten gespeichert.</div></div>
+        </div>
+      </div>
       <div id="prog-panel-log" style="display:none">
         <div id="training-log-content"></div>
       </div>
@@ -754,6 +783,7 @@ const SPLITS = [2, 3];
 
 let db = JSON.parse(localStorage.getItem('mygains_v2') || 'null') || {
   exercises: { 'Münzesheim': [], 'Östringen': [] },
+  cardio: { 'Münzesheim': [], 'Östringen': [] },
   plans: {
     'Münzesheim': { '2': { '1': [], '2': [] }, '3': { '1': [], '2': [], '3': [] } },
     'Östringen':  { '2': { '1': [], '2': [] }, '3': { '1': [], '2': [], '3': [] } }
@@ -761,9 +791,11 @@ let db = JSON.parse(localStorage.getItem('mygains_v2') || 'null') || {
   sessions: []
 };
 
-// Ensure plans structure exists for both gyms and all splits/days (migration guard)
+// Migration guard
 ['Münzesheim','Östringen'].forEach(gym => {
   if (!db.exercises[gym]) db.exercises[gym] = [];
+  if (!db.cardio) db.cardio = { 'Münzesheim': [], 'Östringen': [] };
+  if (!db.cardio[gym]) db.cardio[gym] = [];
   if (!db.plans[gym]) db.plans[gym] = {};
   ['2','3'].forEach(sp => {
     if (!db.plans[gym][sp]) db.plans[gym][sp] = {};
@@ -783,12 +815,31 @@ function persist() {
 }
 
 // ─── SETUP GYM ───────────────────────────────────────────────────────────────
+let activeSetupSub = 'ex';
+
+function showSetupSub(sub) {
+  activeSetupSub = sub;
+  ['ex','cardio','plan'].forEach(s => {
+    const panel = document.getElementById('setup-panel-' + s);
+    const btn = document.getElementById('setup-sub-' + s);
+    if (panel) panel.style.display = s === sub ? 'block' : 'none';
+    if (btn) {
+      btn.style.background = s === sub ? 'var(--bg3)' : 'transparent';
+      btn.style.color = s === sub ? 'var(--accent)' : 'var(--text2)';
+    }
+  });
+  if (sub === 'ex') renderSetupExercises();
+  if (sub === 'cardio') renderSetupCardio();
+  if (sub === 'plan') renderPlanBuilder();
+}
+
 function selectSetupGym(gym) {
   activeSetupGym = gym;
   document.getElementById('setup-gym-btn-m').classList.toggle('active', gym === 'Münzesheim');
   document.getElementById('setup-gym-btn-o').classList.toggle('active', gym === 'Östringen');
-  renderSetupExercises();
-  renderPlanBuilder();
+  if (activeSetupSub === 'ex') renderSetupExercises();
+  if (activeSetupSub === 'cardio') renderSetupCardio();
+  if (activeSetupSub === 'plan') renderPlanBuilder();
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
@@ -831,11 +882,36 @@ function renderSetupExercises() {
       <div class="card-row">
         <div style="flex:1">
           <div class="card-title">${ex.name}</div>
-          ${ex.setup ? `<div class="card-sub">${ex.setup}</div>` : ''}
+          ${ex.setup ? `<div class="card-sub" id="ex-sub-${i}">${ex.setup}</div>` : `<div class="card-sub" id="ex-sub-${i}" style="color:var(--text3);font-style:italic">Kein Setup</div>`}
         </div>
-        <button class="btn btn-danger" onclick="removeExercise('${gym}', ${i})">✕</button>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-danger" style="color:var(--accent);border-color:transparent" onclick="toggleEditSetup('${gym}',${i})" title="Setup bearbeiten">✎</button>
+          <button class="btn btn-danger" onclick="removeExercise('${gym}', ${i})">✕</button>
+        </div>
+      </div>
+      <div id="ex-edit-${i}" style="display:none;margin-top:8px">
+        <div class="input-row" style="margin-bottom:0">
+          <textarea id="ex-setup-input-${i}" placeholder="Setup-Notizen…" style="min-height:48px">${ex.setup || ''}</textarea>
+          <button class="btn btn-accent" style="white-space:nowrap;align-self:flex-end" onclick="saveSetupNote('${gym}',${i})">OK</button>
+        </div>
       </div>
     </div>`).join('');
+}
+
+function toggleEditSetup(gym, idx) {
+  const editDiv = document.getElementById('ex-edit-' + idx);
+  editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
+  if (editDiv.style.display === 'block') {
+    document.getElementById('ex-setup-input-' + idx).focus();
+  }
+}
+
+function saveSetupNote(gym, idx) {
+  const val = document.getElementById('ex-setup-input-' + idx).value.trim();
+  db.exercises[gym][idx].setup = val;
+  persist();
+  renderSetupExercises();
+  toast('Setup gespeichert ✓');
 }
 
 function addExercise() {
@@ -858,6 +934,48 @@ function removeExercise(gym, idx) {
   renderPlanBuilder();
 }
 
+// ─── SETUP: CARDIO ───────────────────────────────────────────────────────────
+function renderSetupCardio() {
+  const gym = activeSetupGym;
+  const items = db.cardio[gym] || [];
+  const el = document.getElementById('setup-cardio-list');
+  if (!el) return;
+  if (!items.length) {
+    el.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-text" style="color:var(--text3)">Noch keine Cardiogeräte für dieses Gym.</div></div>';
+    return;
+  }
+  el.innerHTML = items.map((item, i) => `
+    <div class="card" style="margin-bottom:8px">
+      <div class="card-row">
+        <div style="flex:1">
+          <div class="card-title">${item.name}</div>
+          ${item.setup ? `<div class="card-sub">${item.setup}</div>` : ''}
+        </div>
+        <button class="btn btn-danger" onclick="removeCardio('${gym}',${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addCardio() {
+  const gym = activeSetupGym;
+  const name = document.getElementById('new-cardio-name').value.trim();
+  const setup = document.getElementById('new-cardio-setup').value.trim();
+  if (!name) { toast('Bitte Gerätename eingeben'); return; }
+  if (!db.cardio[gym]) db.cardio[gym] = [];
+  db.cardio[gym].push({ name, setup });
+  document.getElementById('new-cardio-name').value = '';
+  document.getElementById('new-cardio-setup').value = '';
+  persist();
+  renderSetupCardio();
+  toast('Cardiogerät hinzugefügt ✓');
+}
+
+function removeCardio(gym, idx) {
+  db.cardio[gym].splice(idx, 1);
+  persist();
+  renderSetupCardio();
+}
+
 // ─── SETUP: PLAN BUILDER ─────────────────────────────────────────────────────
 function renderPlanBuilder() {
   const gym = activeSetupGym;
@@ -874,10 +992,15 @@ function renderPlanBuilder() {
   let html = '';
   for (let day = 1; day <= split; day++) {
     const assigned = (db.plans[gym] && db.plans[gym][splitStr] && db.plans[gym][splitStr][String(day)]) || [];
-    const pills = assigned.map(name => `
-      <span class="ex-pill">${name}
-        <button class="ex-pill-del" onclick="removePlanEx('${gym}',${split},${day},'${name.replace(/'/g,"\\'")}')">✕</button>
-      </span>`).join('');
+    const pills = assigned.map((name, pi) => {
+      const sn = name.replace(/'/g,"\'");
+      const up = pi > 0 ? `<button onclick="reorderPlanEx('${gym}',${split},${day},${pi},-1)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 3px;line-height:1">↑</button>` : '<span style="width:18px;display:inline-block"></span>';
+      const down = pi < assigned.length-1 ? `<button onclick="reorderPlanEx('${gym}',${split},${day},${pi},1)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 3px;line-height:1">↓</button>` : '<span style="width:18px;display:inline-block"></span>';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:6px">
+        <span style="font-size:13px;flex:1">${name}</span>
+        <div style="display:flex;align-items:center;gap:2px">${up}${down}<button onclick="removePlanEx('${gym}',${split},${day},'${sn}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 3px;margin-left:4px;line-height:1">✕</button></div>
+      </div>`;
+    }).join('');
 
     const options = exs.filter(e => !assigned.includes(e.name))
       .map(e => `<option value="${e.name.replace(/"/g,'&quot;')}">${e.name}</option>`).join('');
@@ -885,14 +1008,14 @@ function renderPlanBuilder() {
     html += `
       <div class="plan-day-card">
         <div class="plan-day-header">
-          <span class="plan-day-title">${split}er Split — Tag ${day}</span>
+          <span class="plan-day-title">${splitStr}er Split — Tag ${day}</span>
         </div>
         <div class="plan-day-body">
           <div style="margin-bottom:8px">${pills || '<span style="font-size:12px;color:var(--text3)">Noch keine Übungen zugewiesen.</span>'}</div>
           ${options ? `
           <div class="input-row" style="margin-bottom:0">
-            <select id="plan-add-sel-${day}">${options}</select>
-            <button class="btn" style="white-space:nowrap" onclick="addPlanEx('${gym}',${split},${day})">+ Hinzufügen</button>
+            <select id="plan-add-sel-${day}" style="border:1px solid var(--accent);background:var(--accent-dim)">${options}</select>
+            <button class="btn btn-accent" style="white-space:nowrap" onclick="addPlanEx('${gym}',${split},${day})">+ Add</button>
           </div>` : '<div style="font-size:12px;color:var(--text3)">Alle Übungen zugewiesen.</div>'}
         </div>
       </div>`;
@@ -923,6 +1046,16 @@ function removePlanEx(gym, split, day, name) {
   renderPlanBuilder();
 }
 
+function reorderPlanEx(gym, split, day, idx, dir) {
+  const sp = String(split), d = String(day);
+  const arr = db.plans[gym][sp][d];
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= arr.length) return;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  persist();
+  renderPlanBuilder();
+}
+
 // ─── TRAINING ────────────────────────────────────────────────────────────────
 function selectGym(gym) {
   activeGym = gym;
@@ -934,17 +1067,24 @@ function selectGym(gym) {
 }
 
 function renderTrainingDay() {
-  const split = parseInt(document.getElementById('train-split-sel').value);
-  const day = parseInt(document.getElementById('train-day-sel').value);
-
-  // update day options
+  const splitVal = document.getElementById('train-split-sel').value;
+  const container = document.getElementById('training-exercises');
   const daySel = document.getElementById('train-day-sel');
+
+  // Cardio mode
+  if (splitVal === 'cardio') {
+    daySel.style.display = 'none';
+    renderCardioSession(container);
+    return;
+  }
+  daySel.style.display = '';
+
+  const split = parseInt(splitVal);
   const curDay = parseInt(daySel.value);
   daySel.innerHTML = Array.from({length: split}, (_,i) => `<option value="${i+1}" ${curDay===i+1?'selected':''}>Tag ${i+1}</option>`).join('');
   const activeDay = Math.min(parseInt(daySel.value), split);
 
   const exNames = (db.plans[activeGym] && db.plans[activeGym][String(split)] && db.plans[activeGym][String(split)][String(activeDay)]) || [];
-  const container = document.getElementById('training-exercises');
 
   if (!exNames.length) {
     container.innerHTML = '<div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">Für diesen Plan-Tag sind noch<br>keine Übungen konfiguriert.<br><br>Bitte zuerst im Setup-Tab<br>Übungen zuweisen.</div></div>';
@@ -1048,7 +1188,14 @@ function removeSet(name, si) {
 }
 
 function saveSession() {
-  const split = parseInt(document.getElementById('train-split-sel').value);
+  const splitVal = document.getElementById('train-split-sel').value;
+
+  if (splitVal === 'cardio') {
+    saveCardioSession();
+    return;
+  }
+
+  const split = parseInt(splitVal);
   const day = parseInt(document.getElementById('train-day-sel').value);
   const exNames = (db.plans[activeGym] && db.plans[activeGym][String(split)] && db.plans[activeGym][String(split)][String(day)]) || [];
 
@@ -1103,9 +1250,10 @@ function renderProgressSelector() {
 function deleteSession(idx) {
   db.sessions.splice(idx, 1);
   persist();
-  // re-render whichever panel is visible
   const logVisible = document.getElementById('prog-panel-log').style.display !== 'none';
+  const cardioVisible = document.getElementById('prog-panel-cardio').style.display !== 'none';
   if (logVisible) renderTrainingLog();
+  if (cardioVisible) renderCardioProgress();
   renderProgress();
 }
 
@@ -1240,15 +1388,87 @@ function renderProgress() {
   }, 50);
 }
 
+// ─── CARDIO TRAINING ─────────────────────────────────────────────────────────
+function renderCardioSession(container) {
+  const cardioItems = db.cardio[activeGym] || [];
+  if (!cardioItems.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🚴</div><div class="empty-text">Noch keine Cardiogeräte für dieses Gym.<br><br>Bitte zuerst im Setup-Tab → Cardio anlegen.</div></div>';
+    return;
+  }
+  const opts = cardioItems.map(item => `<option value="${item.name}">${item.name}</option>`).join('');
+  container.innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <div class="section-label" style="margin-top:0">Gerät</div>
+      <select id="cardio-device-sel" style="margin-bottom:12px">${opts}</select>
+      <div class="section-label">Dauer (Minuten)</div>
+      <input type="number" id="cardio-duration" min="0" inputmode="numeric" placeholder="z.B. 30" style="margin-bottom:12px">
+      <div class="section-label">Kalorien (kcal)</div>
+      <input type="number" id="cardio-calories" min="0" inputmode="numeric" placeholder="z.B. 250">
+    </div>`;
+}
+
+function saveCardioSession() {
+  const device = document.getElementById('cardio-device-sel')?.value;
+  const duration = parseFloat(document.getElementById('cardio-duration')?.value);
+  const calories = parseFloat(document.getElementById('cardio-calories')?.value);
+  if (!device || isNaN(duration)) { toast('Bitte Gerät und Dauer eingeben'); return; }
+  db.sessions.push({
+    date: new Date().toISOString().split('T')[0],
+    gym: activeGym,
+    type: 'cardio',
+    device,
+    duration,
+    calories: isNaN(calories) ? null : calories
+  });
+  persist();
+  document.getElementById('train-split-sel').value = 'cardio';
+  renderTrainingDay();
+  toast('Cardio gespeichert ✓');
+}
+
 // ─── PROGRESS SUB-TABS ───────────────────────────────────────────────────────
 function showProgSub(sub) {
-  document.getElementById('prog-panel-ex').style.display = sub === 'ex' ? 'block' : 'none';
-  document.getElementById('prog-panel-log').style.display = sub === 'log' ? 'block' : 'none';
-  document.getElementById('prog-sub-ex').style.background = sub === 'ex' ? 'var(--bg3)' : 'transparent';
-  document.getElementById('prog-sub-ex').style.color = sub === 'ex' ? 'var(--accent)' : 'var(--text2)';
-  document.getElementById('prog-sub-log').style.background = sub === 'log' ? 'var(--bg3)' : 'transparent';
-  document.getElementById('prog-sub-log').style.color = sub === 'log' ? 'var(--accent)' : 'var(--text2)';
+  ['ex','cardio','log'].forEach(s => {
+    const panel = document.getElementById('prog-panel-' + s);
+    const btn = document.getElementById('prog-sub-' + s);
+    if (panel) panel.style.display = s === sub ? 'block' : 'none';
+    if (btn) {
+      btn.style.background = s === sub ? 'var(--bg3)' : 'transparent';
+      btn.style.color = s === sub ? 'var(--accent)' : 'var(--text2)';
+    }
+  });
   if (sub === 'log') renderTrainingLog();
+  if (sub === 'cardio') renderCardioProgress();
+}
+
+function renderCardioProgress() {
+  const el = document.getElementById('cardio-progress-content');
+  const sessions = db.sessions.filter(s => s.type === 'cardio').slice().reverse();
+  if (!sessions.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🚴</div><div class="empty-text">Noch keine Cardio-Einheiten gespeichert.</div></div>';
+    return;
+  }
+  el.innerHTML = sessions.map((s, i) => {
+    const realIdx = db.sessions.lastIndexOf(s);
+    const gymShort = s.gym === 'Münzesheim' ? 'MZH' : 'ÖST';
+    return `<div class="log-item">
+      <div class="log-item-header" style="cursor:default">
+        <div style="flex:1">
+          <div class="log-item-date">${s.date} <span class="tag" style="margin-left:4px">${gymShort}</span></div>
+          <div class="log-item-meta">${s.device} · ${s.duration} min${s.calories ? ' · ' + s.calories + ' kcal' : ''}</div>
+        </div>
+        <button onclick="confirmDeleteLogSession(${realIdx}, this)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <polyline points="3,3.5 12,3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M5.5,3.5V2.5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <rect x="2.5" y="3.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+            <line x1="5.5" y1="6.5" x2="5.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="9.5" y1="6.5" x2="9.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderTrainingLog() {
@@ -1262,6 +1482,29 @@ function renderTrainingLog() {
 
   el.innerHTML = sorted.map(sess => {
     const gymShort = sess.gym === 'Münzesheim' ? 'MZH' : 'ÖST';
+    const delBtn = `<button onclick="event.stopPropagation();confirmDeleteLogSession(${sess.idx},this)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <polyline points="3,3.5 12,3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M5.5,3.5V2.5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <rect x="2.5" y="3.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+        <line x1="5.5" y1="6.5" x2="5.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="9.5" y1="6.5" x2="9.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg></button>`;
+
+    // Cardio entry
+    if (sess.type === 'cardio') {
+      return `<div class="log-item">
+        <div class="log-item-header" style="cursor:default">
+          <div style="flex:1;min-width:0">
+            <div class="log-item-date">${sess.date} <span class="tag" style="margin-left:4px">${gymShort}</span> <span class="tag tag-accent" style="margin-left:2px">Cardio</span></div>
+            <div class="log-item-meta">${sess.device} · ${sess.duration} min${sess.calories ? ' · ' + sess.calories + ' kcal' : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">${delBtn}</div>
+        </div>
+      </div>`;
+    }
+
+    // Strength entry
     const totalSets = sess.exercises.reduce((s, e) => s + e.sets.length, 0);
     const totalVol = sess.exercises.reduce((s, e) =>
       s + e.sets.reduce((sv, st) => sv + st.reps * st.weight, 0), 0);
@@ -1281,15 +1524,7 @@ function renderTrainingLog() {
           <div class="log-item-meta">${sess.exercises.length} Übungen · ${totalSets} Sätze · ${Math.round(totalVol)} kg Volumen</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <button onclick="event.stopPropagation();confirmDeleteLogSession(${sess.idx},this)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center" title="Training löschen">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <polyline points="3,3.5 12,3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              <path d="M5.5,3.5V2.5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              <rect x="2.5" y="3.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-              <line x1="5.5" y1="6.5" x2="5.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              <line x1="9.5" y1="6.5" x2="9.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </button>
+          ${delBtn}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="transition:transform .2s" class="log-chevron">
             <polyline points="4,6 8,10 12,6" stroke="var(--text3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
