@@ -1521,7 +1521,7 @@ function renderTrainingLog() {
       <div class="log-item-header" onclick="toggleLogItem(this)">
         <div style="flex:1;min-width:0">
           <div class="log-item-date">${sess.date} <span class="tag" style="margin-left:4px">${gymShort}</span></div>
-          <div class="log-item-meta">${sess.exercises.length} Übungen · ${totalSets} Sätze · ${Math.round(totalVol)} kg Volumen</div>
+          <div class="log-item-meta">${sess.split}er Split · Tag ${sess.day} · ${sess.exercises.length} Übungen · ${totalSets} Sätze · ${Math.round(totalVol)} kg Volumen</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           ${delBtn}
